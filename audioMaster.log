@@ -1,0 +1,30 @@
+FFmpeg is installed. Processing audio files...
+ffmpeg version n4.3.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 7 (Ubuntu 7.5.0-3ubuntu1~18.04)
+  configuration: --prefix= --prefix=/usr --disable-debug --disable-doc --disable-static --enable-cuda --enable-cuda-sdk --enable-cuvid --enable-libdrm --enable-ffplay --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfontconfig --enable-libfreetype --enable-libmp3lame --enable-libnpp --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopus --enable-libpulse --enable-sdl2 --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libv4l2 --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-libxcb --enable-libxvid --enable-nonfree --enable-nvenc --enable-omx --enable-openal --enable-opencl --enable-runtime-cpudetect --enable-shared --enable-vaapi --enable-vdpau --enable-version3 --enable-xlib
+  libavutil      56. 51.100 / 56. 51.100
+  libavcodec     58. 91.100 / 58. 91.100
+  libavformat    58. 45.100 / 58. 45.100
+  libavdevice    58. 10.100 / 58. 10.100
+  libavfilter     7. 85.100 /  7. 85.100
+  libswscale      5.  7.100 /  5.  7.100
+  libswresample   3.  7.100 /  3.  7.100
+  libpostproc    55.  7.100 / 55.  7.100
+Guessed Channel Layout for Input Stream #0.0 : stereo
+Input #0, wav, from './Beneath Cursed Sands.wav':
+  Duration: 00:04:17.00, bitrate: 1536 kb/s
+    Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, stereo, s16, 1536 kb/s
+Stream mapping:
+  Stream #0:0 (pcm_s16le) -> equalizer
+  acompressor -> Stream #0:0 (pcm_s24le)
+Press [q] to stop, [?] for help
+Output #0, wav, to './Beneath Cursed SandsMastered.wav':
+  Metadata:
+    ISFT            : Lavf58.45.100
+    Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32, 2116 kb/s
+    Metadata:
+      encoder         : Lavc58.91.100 pcm_s24le
+size=    2560kB time=00:00:10.39 bitrate=2016.6kbits/s speed=20.8x    size=    5632kB time=00:00:22.39 bitrate=2059.7kbits/s speed=22.3x    size=    8704kB time=00:00:34.39 bitrate=2072.8kbits/s speed=22.9x    size=   12032kB time=00:00:46.59 bitrate=2115.2kbits/s speed=23.2x    size=   15104kB time=00:00:58.69 bitrate=2107.9kbits/s speed=23.4x    size=   18176kB time=00:01:10.99 bitrate=2097.2kbits/s speed=23.6x    size=   21504kB time=00:01:23.49 bitrate=2109.7kbits/s speed=23.8x    size=   24576kB time=00:01:35.59 bitrate=2105.9kbits/s speed=23.9x    size=   27648kB time=00:01:47.59 bitrate=2105.0kbits/s speed=23.9x    size=   30720kB time=00:01:59.49 bitrate=2105.9kbits/s speed=23.9x    size=   33792kB time=00:02:11.59 bitrate=2103.5kbits/s speed=23.9x    size=   37120kB time=00:02:23.89 bitrate=2113.2kbits/s speed=23.9x    size=   40192kB time=00:02:35.89 bitrate=2112.0kbits/s speed=23.9x    size=   43264kB time=00:02:47.79 bitrate=2112.2kbits/s speed=23.9x    size=   46336kB time=00:02:59.39 bitrate=2115.9kbits/s speed=23.9x    size=   49152kB time=00:03:11.19 bitrate=2105.9kbits/s speed=23.8x    size=   52480kB time=00:03:23.39 bitrate=2113.7kbits/s speed=23.9x    size=   55552kB time=00:03:35.39 bitrate=2112.7kbits/s speed=23.9x    size=   58624kB time=00:03:47.39 bitrate=2111.9kbits/s speed=23.9x    size=   61440kB time=00:03:58.69 bitrate=2108.6kbits/s speed=23.8x    size=   64512kB time=00:04:09.69 bitrate=2116.5kbits/s speed=23.7x    size=   66408kB time=00:04:16.99 bitrate=2116.8kbits/s speed=23.7x    
+video:0kB audio:66408kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.000150%
+Successfully mastered: ./Beneath Cursed Sands.wav
+Audio processing completed.
