@@ -1,2 +1,53 @@
-
+# Compiled binary
 SlopMaster
+
+# Object files
+*.o
+
+# Log files
+*.log
+
+# macOS
+.DS_Store
+
+# Editor files
+*.swp
+.vscode/
+
+# Temporary files
+*~
+
+# Build directory
+build/
+
+# Debug files
+*.dSYM/
+
+# Dependencies
+# (In case you decide to use any external libraries in the future)
+/lib/
+/include/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# IDE-specific files (expand as needed)
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Backup files
+*.bak
+
+# FFmpeg binaries (in case someone accidentally includes them)
+ffmpeg
+ffprobe
+ffplay
+
+# Any local configuration files
+config.local
+
+# System files
+Thumbs.db
