@@ -19,9 +19,7 @@ Your support helps maintain and improve this crucial open-source project.
 
 ## Compilation
 
-You can compile SlopMaster using the provided Makefile:
-./make
-
+You can compile SlopMaster using the provided Makefile.
 Or manually with GCC:
 ./gcc -Wall -Wextra -pedantic -std=c99 -o SlopMaster SlopMaster.c
 
