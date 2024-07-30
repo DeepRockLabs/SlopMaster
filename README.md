@@ -30,14 +30,38 @@ You can compile SlopMaster using GCC:
 Options:
   -i <input_dir>   Specify input directory (default: current directory)
   -o <output_dir>  Specify output directory (default: current directory)
-  -m <master_type> Specify mastering type: default, synth, or rock
+  -m <master_type> Specify mastering type: default, synth, synthvocals, bassboost, rock, or piano
   -h               Display this help message
 
 ## Mastering Profiles
 
 - default: General-purpose mastering suitable for most tracks
-- synth: Optimized for synth tracks with vocals
-- rock: Tailored for rock music
+- synth: Optimized for instrumental synth tracks
+- synthvocals: Tailored for synth tracks with vocals
+- bassboost: Enhanced bass for dance and party music
+- rock: Tailored for rock and guitar-heavy music
+- piano: Optimized for piano and string-based relaxing music
+
+## Audio Examples
+
+Listen to these example tracks to hear the effects of different mastering profiles. Click on each link to play the audio directly on GitHub:
+
+- [Original Song](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/OriginalSong.wav)
+- [Default Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/defaultMaster.wav)
+- [Bass Boost Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/bassboostMaster.wav)
+- [Piano Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/pianoMaster.wav)
+- [Rock Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/rockMaster.wav)
+- [Synth Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/synthMaster.wav)
+- [Synth Vocals Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/synthvocalsMaster.wav)
+
+## Supported File Formats
+
+SlopMaster now supports processing the following audio file formats:
+- WAV
+- MP3
+- AAC
+- OGG
+- FLAC
 
 ## Examples
 
@@ -55,8 +79,16 @@ SlopMaster uses FFmpeg's powerful audio filtering capabilities to apply a series
 2. Compression
 3. Limiting
 4. Normalization
+5. Stereo enhancement
+6. Genre-specific effects (e.g., bass boost, reverb)
 
-The exact parameters vary depending on the chosen mastering profile.
+The exact parameters and effects vary depending on the chosen mastering profile.
+
+## Output
+
+Processed files are saved in WAV format with the following specifications:
+- Sample rate: 48000 Hz
+- Bit depth: 24-bit
 
 ## License
 

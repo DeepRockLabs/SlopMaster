@@ -11,11 +11,14 @@
 #include <unistd.h>
 
 #define MAX_PATH 1024
-#define COMMAND_SIZE 4096
+#define COMMAND_SIZE 8192
 
 #define DEFAULT_MASTER 0
-#define SYNTH_VOCAL_MASTER 1
-#define ROCK_MASTER 2
+#define SYNTH_MASTER 1
+#define SYNTH_VOCALS_MASTER 2
+#define BASS_BOOST_MASTER 3
+#define ROCK_MASTER 4
+#define PIANO_MASTER 5
 
 // Function prototypes
 int check_ffmpeg_installed(void);
@@ -52,9 +55,15 @@ int main(int argc, char *argv[]) {
                 break;
             case 'm':
                 if (strcmp(optarg, "synth") == 0) {
-                    master_type = SYNTH_VOCAL_MASTER;
+                    master_type = SYNTH_MASTER;
+                } else if (strcmp(optarg, "synthvocals") == 0) {
+                    master_type = SYNTH_VOCALS_MASTER;
+                } else if (strcmp(optarg, "bassboost") == 0) {
+                    master_type = BASS_BOOST_MASTER;
                 } else if (strcmp(optarg, "rock") == 0) {
                     master_type = ROCK_MASTER;
+                } else if (strcmp(optarg, "piano") == 0) {
+                    master_type = PIANO_MASTER;
                 } else if (strcmp(optarg, "default") == 0) {
                     master_type = DEFAULT_MASTER;
                 } else {
@@ -75,7 +84,7 @@ int main(int argc, char *argv[]) {
 
     if (!check_ffmpeg_installed()) {
         fprintf(stderr, "Error: FFmpeg is not installed or not in the system PATH.\n");
-        fprintf(stderr, "Please install FFmpeg and make sure it's accessible from the command line. https://ffmpeg.org/\n");
+        fprintf(stderr, "Please install FFmpeg 4.3 or later and make sure it's accessible from the command line. https://ffmpeg.org/\n");
         fprintf(log_file, "Error: FFmpeg not installed or not in PATH.\n");
         fclose(log_file);
         return 1;
@@ -102,29 +111,72 @@ void master_audio_file(const char* input_file, const char* output_file, int mast
     const char* filter_complex;
 
     switch (master_type) {
-        case SYNTH_VOCAL_MASTER:
+        case SYNTH_MASTER:
+            filter_complex = 
+                "equalizer=f=80:width_type=o:width=2:g=2,"
+                "equalizer=f=150:width_type=o:width=2:g=1,"
+                "equalizer=f=1000:width_type=o:width=2:g=1.5,"
+                "equalizer=f=5000:width_type=o:width=2:g=2.5,"
+                "equalizer=f=10000:width_type=o:width=2:g=2,"
+                "compand=attacks=0:points=-80/-80|-50/-50|-40/-20|-30/-10|-20/-5|-10/-2|0/0|20/20,"
+                "highpass=f=40,lowpass=f=18000,"
+                "loudnorm=I=-9:LRA=5:TP=-1,"
+                "acompressor=threshold=-8dB:ratio=3:attack=15:release=500:makeup=2dB,"
+                "aecho=0.8:0.88:60:0.4";
+            break;
+        case SYNTH_VOCALS_MASTER:
             filter_complex = 
                 "equalizer=f=100:width_type=o:width=2:g=1,"
                 "equalizer=f=1000:width_type=o:width=2:g=2,"
+                "equalizer=f=3000:width_type=o:width=2:g=2.5,"
                 "equalizer=f=5000:width_type=o:width=2:g=3,"
                 "equalizer=f=10000:width_type=o:width=2:g=1.5,"
                 "compand=attacks=0:points=-80/-80|-50/-50|-40/-20|-30/-10|-20/-5|-10/-2|0/0|20/20,"
                 "highpass=f=60,lowpass=f=16000,"
                 "loudnorm=I=-10:LRA=5:TP=-1.5,"
-                "acompressor=threshold=-8dB:ratio=3:attack=15:release=750:makeup=2dB";
+                "acompressor=threshold=-8dB:ratio=3:attack=15:release=750:makeup=2dB,"
+                "stereotools=mlev=2";
+            break;
+        case BASS_BOOST_MASTER:
+            filter_complex = 
+                "equalizer=f=50:width_type=o:width=2:g=4,"
+                "equalizer=f=100:width_type=o:width=2:g=3,"
+                "equalizer=f=200:width_type=o:width=2:g=2,"
+                "equalizer=f=1000:width_type=o:width=2:g=0.5,"
+                "equalizer=f=5000:width_type=o:width=2:g=1,"
+                "compand=attacks=0:points=-80/-80|-50/-50|-40/-20|-30/-10|-20/-5|-10/-2|0/0|20/20,"
+                "highpass=f=20,lowpass=f=18000,"
+                "loudnorm=I=-8:LRA=7:TP=-1,"
+                "acompressor=threshold=-6dB:ratio=4:attack=20:release=1000:makeup=3dB,"
+                "bass=g=6:f=110:w=0.6";
             break;
         case ROCK_MASTER:
             filter_complex = 
                 "equalizer=f=80:width_type=o:width=2:g=2,"
                 "equalizer=f=250:width_type=o:width=2:g=-1,"
+                "equalizer=f=1000:width_type=o:width=2:g=1,"
                 "equalizer=f=2500:width_type=o:width=2:g=2,"
                 "equalizer=f=5000:width_type=o:width=2:g=1.5,"
                 "compand=attacks=0:points=-80/-80|-50/-50|-40/-25|-30/-15|-20/-10|-10/-5|0/0|20/20,"
                 "highpass=f=40,lowpass=f=18000,"
                 "loudnorm=I=-9:LRA=7:TP=-1,"
-                "acompressor=threshold=-7dB:ratio=4:attack=20:release=1000:makeup=3dB";
+                "acompressor=threshold=-7dB:ratio=4:attack=20:release=1000:makeup=3dB,"
+                "stereotools=mlev=2.5";
             break;
-        default:
+        case PIANO_MASTER:
+            filter_complex = 
+                "equalizer=f=100:width_type=o:width=2:g=0.5,"
+                "equalizer=f=500:width_type=o:width=2:g=1,"
+                "equalizer=f=1500:width_type=o:width=2:g=1.5,"
+                "equalizer=f=4000:width_type=o:width=2:g=2,"
+                "equalizer=f=8000:width_type=o:width=2:g=1.5,"
+                "compand=attacks=0:points=-80/-80|-50/-50|-40/-30|-30/-20|-20/-10|-10/-5|0/0|20/20,"
+                "highpass=f=30,lowpass=f=16000,"
+                "loudnorm=I=-12:LRA=8:TP=-1.5,"
+                "acompressor=threshold=-10dB:ratio=2:attack=30:release=1500:makeup=1dB,"
+                "areverse,aecho=0.8:0.9:40|50|70:0.4|0.3|0.2,areverse";
+            break;
+        default: // DEFAULT_MASTER
             filter_complex = 
                 "equalizer=f=100:width_type=o:width=2:g=1,"
                 "equalizer=f=1000:width_type=o:width=2:g=1,"
@@ -132,12 +184,13 @@ void master_audio_file(const char* input_file, const char* output_file, int mast
                 "compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-15/-7|-5/-5|0/-3|20/-2,"
                 "lowpass=f=18000,highpass=f=20,"
                 "loudnorm=I=-8:LRA=6:TP=-1,"
-                "acompressor=threshold=-6dB:ratio=4:attack=25:release=1000:makeup=2dB";
+                "acompressor=threshold=-6dB:ratio=4:attack=25:release=1000:makeup=2dB,"
+                "stereotools=mlev=1.5";
             break;
     }
 
     snprintf(command, COMMAND_SIZE,
-        "ffmpeg -i \"%s\" -filter_complex \"%s\" -ar 44100 -acodec pcm_s24le \"%s\" 2>&1",
+        "ffmpeg -i \"%s\" -filter_complex \"%s\" -ar 48000 -acodec pcm_s24le \"%s\" 2>&1",
         input_file, filter_complex, output_file);
 
     FILE* fp = popen(command, "r");
@@ -180,7 +233,11 @@ int process_audio_files(const char* input_dir, const char* output_dir, int maste
         snprintf(input_file, MAX_PATH, "%s/%s", input_dir, entry->d_name);
         if (stat(input_file, &st) == 0 && S_ISREG(st.st_mode)) {  // If it's a regular file
             size_t name_len = strlen(entry->d_name);
-            if (name_len > 4 && strcmp(entry->d_name + name_len - 4, ".wav") == 0) {
+            if (name_len > 4 && (strcmp(entry->d_name + name_len - 4, ".wav") == 0 ||
+                                 strcmp(entry->d_name + name_len - 4, ".mp3") == 0 ||
+                                 strcmp(entry->d_name + name_len - 4, ".aac") == 0 ||
+                                 strcmp(entry->d_name + name_len - 4, ".ogg") == 0 ||
+                                 strcmp(entry->d_name + name_len - 5, ".flac") == 0)) {
                 snprintf(output_file, MAX_PATH, "%s/%.*sMastered.wav", output_dir, (int)(name_len - 4), entry->d_name);
                 master_audio_file(input_file, output_file, master_type);
             }
@@ -196,6 +253,6 @@ void print_usage(const char* program_name) {
     printf("Options:\n");
     printf("  -i <input_dir>   Specify input directory (default: current directory)\n");
     printf("  -o <output_dir>  Specify output directory (default: current directory)\n");
-    printf("  -m <master_type> Specify mastering type: default, synth, or rock\n");
+    printf("  -m <master_type> Specify mastering type: default, synth, synthvocals, bassboost, rock, or piano\n");
     printf("  -h               Display this help message\n");
 }
