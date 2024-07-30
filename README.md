@@ -42,12 +42,6 @@ Options:
 - rock: Tailored for rock and guitar-heavy music
 - piano: Optimized for piano and string-based relaxing music
 
-## Audio Examples
-
-Experience the effects of different mastering profiles with our example tracks. Download our complete set of audio samples to hear the differences:
-
-[Download All Example Audio Files](https://github.com/DeepRockLabs/SlopMaster/archive/refs/heads/main.zip)
-
 ## Supported File Formats
 
 SlopMaster now supports processing the following audio file formats:
