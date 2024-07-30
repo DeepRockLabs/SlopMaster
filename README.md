@@ -44,15 +44,9 @@ Options:
 
 ## Audio Examples
 
-Listen to these example tracks to hear the effects of different mastering profiles. Click on each link to play the audio directly on GitHub:
+Experience the effects of different mastering profiles with our example tracks. Download our complete set of audio samples to hear the differences:
 
-- [Original Song](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/OriginalSong.wav)
-- [Default Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/defaultMaster.wav)
-- [Bass Boost Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/bassboostMaster.wav)
-- [Piano Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/pianoMaster.wav)
-- [Rock Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/rockMaster.wav)
-- [Synth Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/synthMaster.wav)
-- [Synth Vocals Master](https://github.com/DeepRockLabs/SlopMaster/raw/main/ExampleAudio/synthvocalsMaster.wav)
+[Download All Example Audio Files](https://github.com/DeepRockLabs/SlopMaster/archive/refs/heads/main.zip)
 
 ## Supported File Formats
 
