@@ -1,6 +1,7 @@
 # SlopMaster
 
-SlopMaster is a C program that processes WAV audio files using [FFmpeg](https://ffmpeg.org/), applying various audio filters for mastering. It offers different mastering profiles suitable for various genres and styles.
+SlopMaster is a C program that processes audio files using [FFmpeg](https://ffmpeg.org/), applying various audio filters for mastering. It now supports multi-threading for faster processing and allows users to specify the output format.
+
 
 ## About FFmpeg
 
@@ -16,11 +17,13 @@ Your support helps maintain and improve this crucial open-source project.
 
 - GCC compiler
 - [FFmpeg](https://ffmpeg.org/) 4.3 or later installed and accessible from the command line
+- POSIX-compliant system (Linux, macOS, etc.)
+- pthread library
 
 ## Compilation
 
 You can compile SlopMaster using GCC:
-gcc -Wall -Wextra -pedantic -std=c99 -o SlopMaster SlopMaster.c
+gcc -o SlopMaster SlopMaster.c -lpthread $(pkg-config --cflags --libs libavcodec libavformat libavutil libswresample) -lm
 
 ## Usage
 ./SlopMaster [options]
@@ -28,21 +31,14 @@ gcc -Wall -Wextra -pedantic -std=c99 -o SlopMaster SlopMaster.c
 Options:
   -i <input_dir>   Specify input directory (default: current directory)
   -o <output_dir>  Specify output directory (default: current directory)
-  -m <master_type> Specify mastering type: default, synth, synthvocals, bassboost, rock, or piano
+  -v               Enable vocal mode for processing songs with vocals
+  -f <format>      Specify output format (wav, flac, or mp3; default: wav)
+  -n               Enable verbose mode
   -h               Display this help message
-
-## Mastering Profiles
-
-- default: General-purpose mastering suitable for most tracks
-- synth: Optimized for instrumental synth tracks
-- synthvocals: Tailored for synth tracks with vocals
-- bassboost: Enhanced bass for dance and party music
-- rock: Tailored for rock and guitar-heavy music
-- piano: Optimized for piano and string-based relaxing music
 
 ## Supported File Formats
 
-SlopMaster now supports processing the following audio file formats:
+SlopMaster supports processing the following audio file formats:
 - WAV
 - MP3
 - AAC
@@ -53,21 +49,29 @@ SlopMaster now supports processing the following audio file formats:
 
 SlopMaster uses FFmpeg's powerful audio filtering capabilities to apply a series of audio processing steps:
 
-1. Equalization
-2. Compression
-3. Limiting
-4. Normalization
-5. Stereo enhancement
-6. Genre-specific effects (e.g., bass boost, reverb)
-7. Volume adjustment
+1. Channel layout adjustment
+2. High-pass and low-pass filtering
+3. Noise reduction
+4. Multi-band compression
+5. Equalization
+6. Compression
+7. Stereo enhancement
+8. Loudness normalization
+9. Limiting
+10. Volume adjustment
 
-The exact parameters and effects vary depending on the chosen mastering profile.
+Additional vocal-specific processing is applied when vocal mode is enabled.
 
 ## Output
 
-Processed files are saved in WAV format with the following specifications:
+Processed files are saved in the specified format (WAV, FLAC, or MP3) with the following specifications:
 - Sample rate: 48000 Hz
-- Bit depth: 24-bit
+- Bit depth: 24-bit (for WAV and FLAC)
+
+## Multi-threading
+
+SlopMaster now utilizes multi-threading to process multiple files simultaneously, significantly improving performance on multi-core systems.
+
 
 ## License
 
