@@ -20,8 +20,8 @@ int processed_files = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int check_ffmpeg_installed(void);
-void master_audio_file(const char* input_file, const char* output_file, int vocal_mode, const char* output_format);
-int process_audio_files(const char* input_dir, const char* output_dir, int vocal_mode, const char* output_format);
+void master_audio_file(const char* input_file, const char* output_file, int vocal_mode, const char* output_format, int reverb, double reverb_delay, double reverb_decay, int bass_boost, int wet);
+int process_audio_files(const char* input_dir, const char* output_dir, int vocal_mode, const char* output_format, int reverb, double reverb_delay, double reverb_decay, int bass_boost, int wet);
 void print_usage(const char* program_name);
 void* process_file_thread(void* arg);
 void update_progress();
@@ -32,14 +32,20 @@ typedef struct {
     char output_file[MAX_PATH];
     int vocal_mode;
     char output_format[10];
+    int reverb;
+    double reverb_delay;
+    double reverb_decay;
+    int bass_boost;
+    int wet;
 } ThreadArgs;
 
 int main(int argc, char *argv[]) {
     char input_dir[MAX_PATH] = ".";
     char output_dir[MAX_PATH] = ".";
-    int opt, vocal_mode = 0;
+    int opt, vocal_mode = 0, reverb = 0, bass_boost = 0, wet = 0;
     int verbose = 0;
     char output_format[10] = "wav";
+    double reverb_delay = 60.0, reverb_decay = 0.5;
 
     log_file = fopen("audioMaster.log", "a");
     if (!log_file) {
@@ -47,13 +53,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    while ((opt = getopt(argc, argv, "i:o:vhf:n")) != -1) {
+    while ((opt = getopt(argc, argv, "i:o:vhf:nrd:e:bw")) != -1) {
         switch (opt) {
             case 'i': strncpy(input_dir, optarg, MAX_PATH - 1); break;
             case 'o': strncpy(output_dir, optarg, MAX_PATH - 1); break;
             case 'v': vocal_mode = 1; break;
             case 'f': strncpy(output_format, optarg, 9); break;
             case 'n': verbose = 1; break;
+            case 'r': reverb = 1; break;
+            case 'd': reverb_delay = atof(optarg); break;
+            case 'e': reverb_decay = atof(optarg); break;
+            case 'b': bass_boost = 1; break;
+            case 'w': wet = 1; break;
             case 'h': print_usage(argv[0]); fclose(log_file); return 0;
             default: fprintf(stderr, "Unknown option: %c\n", opt);
                      print_usage(argv[0]); fclose(log_file); return 1;
@@ -72,7 +83,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int result = process_audio_files(input_dir, output_dir, vocal_mode, output_format);
+    int result = process_audio_files(input_dir, output_dir, vocal_mode, output_format, reverb, reverb_delay, reverb_decay, bass_boost, wet);
     fclose(log_file);
     return result;
 }
@@ -81,26 +92,45 @@ int check_ffmpeg_installed(void) {
     return system("ffmpeg -version > /dev/null 2>&1") == 0;
 }
 
-void master_audio_file(const char* input_file, const char* output_file, int vocal_mode, const char* output_format) {
+void master_audio_file(const char* input_file, const char* output_file, int vocal_mode, const char* output_format, int reverb, double reverb_delay, double reverb_decay, int bass_boost, int wet) {
     char filter_complex[COMMAND_SIZE / 2];
     snprintf(filter_complex, COMMAND_SIZE / 2,
         "aformat=channel_layouts=stereo:sample_rates=48000,"
         "highpass=f=20,lowpass=f=20000,"
         "afftdn=nr=10:nf=-25,"
         "compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-15/-5|-5/-2|0/-1|20/0,"
-         // Detailed EQ
-        "equalizer=f=60:t=q:w=1.5:g=1,"    // Sub-bass
-        "equalizer=f=120:t=q:w=1:g=-1,"    // Low-end cut
-        "equalizer=f=1000:t=q:w=1.5:g=-1," // Mids cut
+        "equalizer=f=60:t=q:w=1.5:g=1,"
+        "equalizer=f=120:t=q:w=1:g=-1,"
+        "equalizer=f=1000:t=q:w=1.5:g=-1,"
         "equalizer=f=4000:t=q:w=1:g=2,"
-        "equalizer=f=6000:t=q:w=1:g=1.5,"  // Presence
+        "equalizer=f=6000:t=q:w=1:g=1.5,"
         "equalizer=f=8000:t=q:w=1:g=1,"
-        "equalizer=f=12000:t=q:w=1.5:g=1," // Air
+        "equalizer=f=12000:t=q:w=1.5:g=1,"
         "stereotools=mlev=1:slev=1.2:sbal=0.2:phase=0:mode=lr>lr,"
-        "loudnorm=I=-14:TP=-1:LRA=9.0,"
+        "loudnorm=I=-14:TP=-1:LRA=9,"
         "alimiter=level_in=1:level_out=1:limit=0.95:attack=5:release=30,"
         "volume=1.1,pan=stereo|c0=c0|c1=c1"
     );
+
+    if (reverb) {
+        char reverb_filter[100];
+        snprintf(reverb_filter, sizeof(reverb_filter), 
+                ",aecho=0.8:0.5:%d|%d|%d:%.1f|%.1f|%.1f",
+                (int)reverb_delay, (int)(reverb_delay*1.5), (int)(reverb_delay*2),
+                reverb_decay, reverb_decay*0.8, reverb_decay*0.6);
+        strncat(filter_complex, reverb_filter, COMMAND_SIZE / 2 - strlen(filter_complex) - 1);
+    }
+
+    if (bass_boost) {
+        strncat(filter_complex, ",equalizer=f=100:t=q:w=1:g=5", COMMAND_SIZE / 2 - strlen(filter_complex) - 1);
+    }
+
+    if (wet) {
+        strncat(filter_complex, ",asplit[dry][wet];"
+                                "[wet]aecho=0.8:0.88:60:0.4[wet];"
+                                "[dry][wet]amix=inputs=2:weights=0.7 0.3", 
+                COMMAND_SIZE / 2 - strlen(filter_complex) - 1);
+    }
 
     if (vocal_mode) {
         char vocal_filters[COMMAND_SIZE / 4];
@@ -164,7 +194,7 @@ void master_audio_file(const char* input_file, const char* output_file, int voca
     pthread_mutex_unlock(&mutex);
 }
 
-int process_audio_files(const char* input_dir, const char* output_dir, int vocal_mode, const char* output_format) {
+int process_audio_files(const char* input_dir, const char* output_dir, int vocal_mode, const char* output_format, int reverb, double reverb_delay, double reverb_decay, int bass_boost, int wet) {
     DIR *dir = opendir(input_dir);
     if (!dir) {
         fprintf(stderr, "Error opening input directory: %s\n", strerror(errno));
@@ -209,6 +239,11 @@ int process_audio_files(const char* input_dir, const char* output_dir, int vocal
                 strcpy(args->output_file, output_file);
                 args->vocal_mode = vocal_mode;
                 strcpy(args->output_format, output_format);
+                args->reverb = reverb;
+                args->reverb_delay = reverb_delay;
+                args->reverb_decay = reverb_decay;
+                args->bass_boost = bass_boost;
+                args->wet = wet;
 
                 pthread_create(&threads[thread_count], NULL, process_file_thread, args);
                 thread_count++;
@@ -233,7 +268,8 @@ int process_audio_files(const char* input_dir, const char* output_dir, int vocal
 
 void* process_file_thread(void* arg) {
     ThreadArgs* args = (ThreadArgs*)arg;
-    master_audio_file(args->input_file, args->output_file, args->vocal_mode, args->output_format);
+    master_audio_file(args->input_file, args->output_file, args->vocal_mode, args->output_format, 
+                      args->reverb, args->reverb_delay, args->reverb_decay, args->bass_boost, args->wet);
     free(arg);
     return NULL;
 }
@@ -264,5 +300,10 @@ void print_usage(const char* program_name) {
            "  -v               Enable vocal mode for processing songs with vocals\n"
            "  -f <format>      Specify output format (wav, flac, or mp3; default: wav)\n"
            "  -n               Enable verbose mode\n"
+           "  -r               Enable reverb\n"
+           "  -d <delay>       Set reverb delay (default: 60.0)\n"
+           "  -e <decay>       Set reverb decay (default: 0.5)\n"
+           "  -b               Enable bass boost\n"
+           "  -w               Enable wet effect\n"
            "  -h               Display this help message\n", program_name);
 }

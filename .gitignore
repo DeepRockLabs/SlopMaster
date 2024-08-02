@@ -51,3 +51,6 @@ config.local
 
 # System files
 Thumbs.db
+testSlop.c
+slopTerminal
+slopGUI
