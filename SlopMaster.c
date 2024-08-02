@@ -84,18 +84,22 @@ int check_ffmpeg_installed(void) {
 void master_audio_file(const char* input_file, const char* output_file, int vocal_mode, const char* output_format) {
     char filter_complex[COMMAND_SIZE / 2];
     snprintf(filter_complex, COMMAND_SIZE / 2,
-        "aformat=channel_layouts=stereo,"
+        "aformat=channel_layouts=stereo:sample_rates=48000,"
         "highpass=f=20,lowpass=f=20000,"
         "afftdn=nr=10:nf=-25,"
         "compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-15/-5|-5/-2|0/-1|20/0,"
-        "equalizer=f=100:t=q:w=1:g=-1,equalizer=f=250:t=q:w=1:g=1,"
-        "equalizer=f=1000:t=q:w=1:g=-1,equalizer=f=4000:t=q:w=1:g=2,"
+         // Detailed EQ
+        "equalizer=f=60:t=q:w=1.5:g=1,"    // Sub-bass
+        "equalizer=f=120:t=q:w=1:g=-1,"    // Low-end cut
+        "equalizer=f=1000:t=q:w=1.5:g=-1," // Mids cut
+        "equalizer=f=4000:t=q:w=1:g=2,"
+        "equalizer=f=6000:t=q:w=1:g=1.5,"  // Presence
         "equalizer=f=8000:t=q:w=1:g=1,"
-        "acompressor=threshold=0.1:ratio=4:attack=5:release=50:makeup=2:knee=2,"
-        "stereotools=mlev=1:slev=1:sbal=0.5:phase=16:mode=lr>ms,"
-        "loudnorm=I=-14:TP=-1:LRA=11,"
-        "alimiter=level_in=1:level_out=1:limit=0.75:attack=5:release=50,"
-        "volume=1.5"
+        "equalizer=f=12000:t=q:w=1.5:g=1," // Air
+        "stereotools=mlev=1:slev=1.2:sbal=0.2:phase=0:mode=lr>lr,"
+        "loudnorm=I=-14:TP=-1:LRA=9.0,"
+        "alimiter=level_in=1:level_out=1:limit=0.95:attack=5:release=30,"
+        "volume=1.1,pan=stereo|c0=c0|c1=c1"
     );
 
     if (vocal_mode) {
