@@ -27,7 +27,7 @@ Compile slopTerminal using:
 gcc -o slopTerminal slopTerminal.c -lpthread $(pkg-config --cflags --libs libavcodec libavformat libavutil libswresample) -lm
 
 Compile slopGUI using:
-gcc -o slopGUI slopGUI.c -lpthread $(pkg-config --cflags --libs gtk+-3.0) -lm
+gcc -o slopmaster slopGUI.c `pkg-config --cflags --libs gtk+-3.0 gstreamer-1.0 sndfile` -lm -lpthread
 
 ## Usage
 
